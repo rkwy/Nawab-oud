@@ -17,7 +17,7 @@ jobs:
       - name: Extract Nawab Oud project
         run: |
           mkdir build-project
-          unzip -q NawabOud_Pro_v3_Thermal_Print_Fixed.zip -d build-project
+          unzip -q NawabOud_Pro_v3_Thermal_Print_Fixed_AndroidX.zip -d build-project
 
       - name: Find project directory
         run: |
