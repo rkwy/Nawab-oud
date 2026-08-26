@@ -20,7 +20,7 @@ jobs:
           set -e
           mkdir -p build-project
 
-          ZIP_FILE=$(find . -maxdepth 1 -type f -name '*.zip' -print -quit)
+          ZIP_FILE="./NawabOud_GodOfFire_Crystal_Perfume_FINAL_IconFixed.zip"
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found in repository root."
