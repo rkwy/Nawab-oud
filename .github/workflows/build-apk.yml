@@ -17,10 +17,11 @@ jobs:
       - name: Find and extract Nawab Oud project
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
+          rm -rf build-project
           mkdir -p build-project
 
-          ZIP_FILE="./NawabOud_GodOfFire_Crystal_Perfume_FINAL_IconFixed.zip"
+          ZIP_FILE="$(find . -maxdepth 1 -type f -name '*.zip' -print -quit)"
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found in repository root."
