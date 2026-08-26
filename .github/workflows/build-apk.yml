@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build-project
           unzip -q NawabOud_Pro_v3_Thermal_Print_Fixed_AndroidX_CORRECTED.zip -d build-project
-o
+
       - name: Find project directory
         run: |
           echo "Project contents:"
