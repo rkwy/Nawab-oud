@@ -31,11 +31,22 @@ jobs:
           echo "Using project ZIP: $ZIP_FILE"
           unzip -q "$ZIP_FILE" -d build-project
 
-      - name: Find project directory
+      - name: Find Gradle project root
         shell: bash
         run: |
-          echo "Project contents:"
-          find build-project -maxdepth 3 -type f | head -100
+          set -euo pipefail
+
+          PROJECT_DIR="$(find build-project -type f             \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \)             -print -quit | xargs -r dirname)"
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: Could not find settings.gradle or settings.gradle.kts."
+            echo "Extracted files:"
+            find build-project -maxdepth 6 -type f | head -200
+            exit 1
+          fi
+
+          echo "Gradle project root: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -57,9 +68,11 @@ jobs:
           gradle-version: '8.11.1'
 
       - name: Build APK
-        working-directory: build-project
         shell: bash
         run: |
+          set -euo pipefail
+          cd "$PROJECT_DIR"
+          echo "Building from: $(pwd)"
           gradle assembleDebug --no-daemon -Pkotlin.jvm.target.validation.mode=warning
 
       - name: Upload APK
@@ -67,4 +80,5 @@ jobs:
         with:
           name: Nawab-Oud-Luxury-APK
           path: build-project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
           retention-days: 30
