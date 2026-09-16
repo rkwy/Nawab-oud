@@ -18,6 +18,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           rm -rf build-project
           mkdir -p build-project
 
@@ -36,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          PROJECT_DIR="$(find build-project -type f             \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \)             -print -quit | xargs -r dirname)"
+          PROJECT_DIR="$(find build-project -type f \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \) -print -quit | xargs -r dirname)"
 
           if [ -z "$PROJECT_DIR" ]; then
             echo "ERROR: Could not find settings.gradle or settings.gradle.kts."
@@ -57,7 +58,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
-       packages: ''
+          packages: ''
 
       - name: Install Android SDK
         shell: bash
