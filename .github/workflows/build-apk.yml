@@ -9,26 +9,45 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Find project
+      - name: Find and extract Nawab Oud project
         shell: bash
         run: |
           set -euo pipefail
-          PROJECT_DIR="$(find . -type f \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \) -print -quit | xargs -r dirname)"
-          if [ -z "$PROJECT_DIR" ]; then
-            rm -rf build-project
-            mkdir -p build-project
-            ZIP_FILE="$(find . -maxdepth 1 -type f -name '*.zip' -print -quit)"
-            if [ -z "$ZIP_FILE" ]; then echo "ERROR: no Android project found"; exit 1; fi
-            unzip -q "$ZIP_FILE" -d build-project
-            PROJECT_DIR="$(find build-project -type f \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \) -print -quit | xargs -r dirname)"
+
+          rm -rf build-project
+          mkdir -p build-project
+
+          ZIP_FILE="$(find . -maxdepth 1 -type f -name '*.zip' -print -quit)"
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: No ZIP file found in repository root."
+            exit 1
           fi
-          if [ -z "$PROJECT_DIR" ]; then echo "ERROR: no Gradle project root"; exit 1; fi
+
+          echo "Using project ZIP: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d build-project
+
+      - name: Find Gradle project root
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PROJECT_DIR="$(find build-project -type f \( -name 'settings.gradle' -o -name 'settings.gradle.kts' \) -print -quit | xargs -r dirname)"
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: Could not find settings.gradle or settings.gradle.kts."
+            echo "Extracted files:"
+            find build-project -maxdepth 6 -type f | head -200
+            exit 1
+          fi
+
+          echo "Gradle project root: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Building from $PROJECT_DIR"
 
       - name: Set up Java
         uses: actions/setup-java@v5
@@ -43,7 +62,9 @@ jobs:
 
       - name: Install Android SDK
         shell: bash
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          set -euo pipefail
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -54,13 +75,39 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           cd "$PROJECT_DIR"
+
+          echo "Building from: $(pwd)"
+
           gradle assembleDebug --no-daemon -Pkotlin.jvm.target.validation.mode=warning
+
+      - name: Find generated APK
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Searching for generated APK..."
+
+          APK_FILE="$(find "$PROJECT_DIR" -type f -path '*/build/outputs/apk/debug/*.apk' -print -quit)"
+
+          if [ -z "$APK_FILE" ]; then
+            echo "ERROR: APK was not found."
+            echo "Build directory contents:"
+            find "$PROJECT_DIR" -type f | grep -E '\.apk$|outputs' | head -200 || true
+            exit 1
+          fi
+
+          echo "APK found:"
+          echo "$APK_FILE"
+
+          mkdir -p "$GITHUB_WORKSPACE/apk-output"
+          cp "$APK_FILE" "$GITHUB_WORKSPACE/apk-output/Nawab-Oud-Liquid-Glass-120FPS.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Nawab-Oud-Liquid-Glass-120FPS-APK
-          path: "${PROJECT_DIR}/app/build/outputs/apk/debug/*.apk"
+          path: apk-output/Nawab-Oud-Liquid-Glass-120FPS.apk
           if-no-files-found: error
           retention-days: 30
