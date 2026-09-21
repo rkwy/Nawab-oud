@@ -97,7 +97,7 @@ jobs:
           })();
           </script>
           '''
-          s = s.replace("</head>", patch + "</head>", 1)
+          s = s.replace("</head>", patch + "\n</head>", 1)
           p.write_text(s, encoding="utf-8")
           PY
 
@@ -114,9 +114,9 @@ jobs:
               getWindow().setAttributes(lp);
           } catch (Throwable ignored) { }
           }'''
-          s=re.sub(r"private void requestHighRefreshRate\(\)\s*\{.*?\s*\}",replacement,s,count=1,flags=re.S)
+          s=re.sub(r"private void requestHighRefreshRate\(\)\s*\{.*?(?=\n\s*private\s|\Z)", replacement, s, count=1, flags=re.S)
           s=re.sub(r"\s*try\s*\{\s*getWindow\(\)\.setFrameRate\([^;]+;\s*\}\s*catch\s*\(Throwable ignored\)\s*\{\s*\}","",s)
-          s=s.replace(".setMediaSize(android.print.PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)",".setMediaSize(new android.print.PrintAttributes.MediaSize("NAWAB_OUD_58MM", "Nawab Oud 58mm", 2283, 10000))")
+          s=s.replace('.setMediaSize(android.print.PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)', '.setMediaSize(new android.print.PrintAttributes.MediaSize("NAWAB_OUD_58MM", "Nawab Oud 58mm", 2283, 10000))')
           p.write_text(s,encoding="utf-8")
           PY
 
@@ -173,4 +173,3 @@ jobs:
           path: apk-output/Nawab-Oud-Smooth-58mm.apk
           if-no-files-found: error
           retention-days: 30
-
