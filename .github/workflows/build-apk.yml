@@ -33,14 +33,11 @@ jobs:
           test -n "$INDEX"
           test -n "$JAVA"
 
-          curl -L --fail --silent --show-error             'https://images.unsplash.com/photo-1671493234279-57ef0c8f34e6?auto=format&fit=crop&fm=webp&q=72&w=1440'             -o "$ASSETS/nawab_oud_bg.webp"
-
           python3 - "$INDEX" <<'PY'
           import sys
           from pathlib import Path
           p = Path(sys.argv[1])
           s = p.read_text(encoding="utf-8")
-          s = s.replace("nawab_oud_bg.svg", "nawab_oud_bg.webp")
           s = s.replace("filter:blur(13px)!important;opacity:var(--bg-frost)!important;", "filter:none!important;opacity:1!important;")
           s = s.replace("backdrop-filter:blur(var(--glass-blur))!important;", "backdrop-filter:none!important;")
           s = s.replace("-webkit-backdrop-filter:blur(var(--glass-blur))!important;", "-webkit-backdrop-filter:none!important;")
@@ -50,7 +47,7 @@ jobs:
           :root{--glass-opacity:.58;--card-opacity:.58;--action-opacity:.48;--glass-tint:250,245,238}
           html,body{min-height:100%;overflow-x:hidden!important;scroll-behavior:auto!important;overscroll-behavior-y:none!important;-webkit-overflow-scrolling:touch}
           body{position:relative!important;background:#d7c3a8!important;background-image:none!important;background-attachment:scroll!important;color:#201812!important}
-          body::before{content:""!important;position:fixed!important;inset:-20px!important;z-index:-10!important;pointer-events:none!important;background:url('nawab_oud_bg.webp') center center/cover no-repeat!important;filter:blur(clamp(0px,var(--glass-blur,8px),14px))!important;transform:translate3d(0,0,0) scale(1.03)!important;will-change:auto!important}
+          body::before{content:""!important;position:fixed!important;inset:-20px!important;z-index:-10!important;pointer-events:none!important;background:radial-gradient(circle at 50% 0%,rgba(255,248,235,.96),rgba(215,195,168,.92) 55%,rgba(102,72,42,.72))!important;filter:blur(clamp(0px,var(--glass-blur,8px),14px))!important;transform:translate3d(0,0,0) scale(1.03)!important;will-change:auto!important}
           body::after{content:""!important;position:fixed!important;inset:0!important;z-index:-9!important;pointer-events:none!important;background:linear-gradient(180deg,rgba(255,247,233,.10),rgba(66,42,22,.14))!important;filter:none!important}
           #app,#pro{position:relative!important;z-index:1!important}
           #pro{padding-bottom:132px!important}
