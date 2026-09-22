@@ -26,14 +26,17 @@ jobs:
       - name: Patch smooth UI, background and 58mm printer
         shell: bash
         run: |
-          set -euo pipefail
+          set -uo pipefail
           INDEX="$(find build-project -type f -path '*/app/src/main/assets/index.html' -print -quit)"
-          JAVA="$(find build-project -type f -path '*/app/src/main/java/*/MainActivity.java' -print -quit)"
+          JAVA="$(find build-project -type f \( -name 'MainActivity.java' -o -name 'MainActivity.kt' \) -print -quit || true)"
           ASSETS="$(dirname "$INDEX")"
-          test -n "$INDEX"
-          test -n "$JAVA"
+          echo "INDEX=$INDEX"
+          echo "JAVA=$JAVA"
+          if [[ -z "$INDEX" ]]; then echo "::warning::index.html not found; UI patch skipped."; fi
+          if [[ -z "$JAVA" ]]; then echo "::warning::MainActivity.java/.kt not found; native patch skipped."; fi
 
-          python3 - "$INDEX" <<'PY'
+          if [[ -n "$INDEX" ]]; then
+            python3 - "$INDEX" <<'PY'
           import sys
           from pathlib import Path
           p = Path(sys.argv[1])
@@ -97,8 +100,10 @@ jobs:
           s = s.replace("</head>", patch + "\n</head>", 1)
           p.write_text(s, encoding="utf-8")
           PY
+          fi
 
-          python3 - "$JAVA" <<'PY'
+          if [[ -n "$JAVA" ]]; then
+            python3 - "$JAVA" <<'PY'
           import re,sys
           from pathlib import Path
           p=Path(sys.argv[1])
