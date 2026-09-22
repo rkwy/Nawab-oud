@@ -121,6 +121,7 @@ jobs:
           s=s.replace('.setMediaSize(android.print.PrintAttributes.MediaSize.UNKNOWN_PORTRAIT)', '.setMediaSize(new android.print.PrintAttributes.MediaSize("NAWAB_OUD_58MM", "Nawab Oud 58mm", 2283, 10000))')
           p.write_text(s,encoding="utf-8")
           PY
+          fi
 
       - name: Find Gradle project root
         shell: bash
